@@ -354,7 +354,420 @@ function updateDashboard() {
 // ===============================
 // START SYSTEM
 // ===============================
+// ==========================================
+// MMK SMART ORDER - APP.JS
+// Customer Shop + Cart + Owner Dashboard
+// ==========================================
 
+// ---------- PRODUCT DATA ----------
+
+let products = [
+    {
+        id: 1,
+        name: "Eggs",
+        category: "Groceries",
+        price: 45,
+        stock: 20
+    },
+    {
+        id: 2,
+        name: "Cooking Oil 2L",
+        category: "Groceries",
+        price: 55,
+        stock: 15
+    },
+    {
+        id: 3,
+        name: "Mealie Meal 25kg",
+        category: "Groceries",
+        price: 180,
+        stock: 10
+    },
+    {
+        id: 4,
+        name: "Rice 10kg",
+        category: "Groceries",
+        price: 150,
+        stock: 12
+    },
+    {
+        id: 5,
+        name: "Flour 10kg",
+        category: "Groceries",
+        price: 120,
+        stock: 10
+    },
+    {
+        id: 6,
+        name: "Macaroni",
+        category: "Groceries",
+        price: 25,
+        stock: 30
+    },
+    {
+        id: 7,
+        name: "Washing Powder 2kg",
+        category: "Cleaning",
+        price: 65,
+        stock: 15
+    },
+    {
+        id: 8,
+        name: "Dishwasher Liquid",
+        category: "Cleaning",
+        price: 30,
+        stock: 20
+    },
+    {
+        id: 9,
+        name: "Tissue",
+        category: "Household",
+        price: 45,
+        stock: 25
+    },
+    {
+        id: 10,
+        name: "Fresh Milk",
+        category: "Dairy",
+        price: 25,
+        stock: 20
+    },
+    {
+        id: 11,
+        name: "Inkomazi",
+        category: "Dairy",
+        price: 30,
+        stock: 15
+    },
+    {
+        id: 12,
+        name: "Atchaar 5L",
+        category: "Food",
+        price: 120,
+        stock: 8
+    }
+];
+
+
+// ---------- CART ----------
+
+let cart = [];
+
+
+// ---------- LOAD SAVED DATA ----------
+
+function loadData() {
+
+    const savedCart = localStorage.getItem("mmkCart");
+    const savedProducts = localStorage.getItem("mmkProducts");
+
+    if (savedCart) {
+        cart = JSON.parse(savedCart);
+    }
+
+    if (savedProducts) {
+        products = JSON.parse(savedProducts);
+    }
+}
+
+
+// ---------- SAVE DATA ----------
+
+function saveData() {
+
+    localStorage.setItem(
+        "mmkCart",
+        JSON.stringify(cart)
+    );
+
+    localStorage.setItem(
+        "mmkProducts",
+        JSON.stringify(products)
+    );
+}
+
+
+// ---------- SHOW CUSTOMER / OWNER SECTION ----------
+
+function showSection(sectionName) {
+
+    const sections = document.querySelectorAll(".section");
+
+    sections.forEach(function(section) {
+        section.classList.add("hidden");
+    });
+
+    const selectedSection = document.getElementById(sectionName);
+
+    if (selectedSection) {
+        selectedSection.classList.remove("hidden");
+    }
+
+    if (sectionName === "shop") {
+        renderProducts();
+        renderCart();
+    }
+
+    if (sectionName === "owner") {
+        updateDashboard();
+        renderStockTable();
+    }
+}
+
+
+// ---------- DISPLAY PRODUCTS ----------
+
+function renderProducts() {
+
+    const productsContainer =
+        document.getElementById("products");
+
+    if (!productsContainer) return;
+
+    productsContainer.innerHTML = "";
+
+    products.forEach(function(product) {
+
+        const productCard = document.createElement("div");
+
+        productCard.className = "product-card";
+
+        productCard.innerHTML = `
+            <h3>${product.name}</h3>
+
+            <p>Category: ${product.category}</p>
+
+            <p>
+                <strong>R${product.price.toFixed(2)}</strong>
+            </p>
+
+            <p>
+                Stock: ${product.stock}
+            </p>
+
+            <button
+                onclick="addToCart(${product.id})"
+                ${product.stock <= 0 ? "disabled" : ""}
+            >
+                ${product.stock <= 0 ? "Out of Stock" : "Add to Cart"}
+            </button>
+        `;
+
+        productsContainer.appendChild(productCard);
+    });
+}
+
+
+// ---------- ADD PRODUCT TO CART ----------
+
+function addToCart(productId) {
+
+    const product = products.find(
+        p => p.id === productId
+    );
+
+    if (!product) return;
+
+    if (product.stock <= 0) {
+        alert("Sorry, this product is out of stock.");
+        return;
+    }
+
+    const existingItem = cart.find(
+        item => item.id === productId
+    );
+
+    if (existingItem) {
+
+        if (existingItem.quantity >= product.stock) {
+            alert("You cannot add more than the available stock.");
+            return;
+        }
+
+        existingItem.quantity++;
+
+    } else {
+
+        cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            quantity: 1
+        });
+    }
+
+    saveData();
+
+    renderCart();
+
+    alert(product.name + " added to your cart.");
+}
+
+
+// ---------- REMOVE FROM CART ----------
+
+function removeFromCart(productId) {
+
+    cart = cart.filter(
+        item => item.id !== productId
+    );
+
+    saveData();
+
+    renderCart();
+}
+
+
+// ---------- CHANGE CART QUANTITY ----------
+
+function changeQuantity(productId, amount) {
+
+    const item = cart.find(
+        item => item.id === productId
+    );
+
+    if (!item) return;
+
+    const product = products.find(
+        p => p.id === productId
+    );
+
+    if (!product) return;
+
+    item.quantity += amount;
+
+    if (item.quantity <= 0) {
+
+        removeFromCart(productId);
+        return;
+    }
+
+    if (item.quantity > product.stock) {
+
+        item.quantity = product.stock;
+
+        alert("Maximum available stock reached.");
+    }
+
+    saveData();
+
+    renderCart();
+}
+
+
+// ---------- DISPLAY CART ----------
+
+function renderCart() {
+
+    const cartItems =
+        document.getElementById("cartItems");
+
+    const cartTotal =
+        document.getElementById("cartTotal");
+
+    if (!cartItems) return;
+
+    cartItems.innerHTML = "";
+
+    let total = 0;
+
+    if (cart.length === 0) {
+
+        cartItems.innerHTML =
+            "<p>Your cart is empty.</p>";
+
+    } else {
+
+        cart.forEach(function(item) {
+
+            const itemTotal =
+                item.price * item.quantity;
+
+            total += itemTotal;
+
+            const row =
+                document.createElement("div");
+
+            row.className = "cart-item";
+
+            row.innerHTML = `
+                <p>
+                    <strong>${item.name}</strong>
+                </p>
+
+                <p>
+                    R${item.price.toFixed(2)}
+                    × ${item.quantity}
+                    =
+                    R${itemTotal.toFixed(2)}
+                </p>
+
+                <button
+                    onclick="changeQuantity(${item.id}, -1)"
+                >
+                    −
+                </button>
+
+                <button
+                    onclick="changeQuantity(${item.id}, 1)"
+                >
+                    +
+                </button>
+
+                <button
+                    onclick="removeFromCart(${item.id})"
+                >
+                    Remove
+                </button>
+            `;
+
+            cartItems.appendChild(row);
+        });
+    }
+
+    if (cartTotal) {
+        cartTotal.textContent =
+            total.toFixed(2);
+    }
+}
+
+
+// ---------- CALCULATE TOTAL ----------
+
+function getCartTotal() {
+
+    return cart.reduce(function(total, item) {
+
+        return total +
+            (item.price * item.quantity);
+
+    }, 0);
+}
+
+
+// ---------- CHECKOUT ----------
+
+function checkOut() {
+
+    if (cart.length === 0) {
+
+        alert("Your cart is empty.");
+
+        return;
+    }
+
+    const total = getCartTotal();
+
+    let orderMessage =
+        "MMK SMART ORDER\n\n";
+
+    orderMessage +=
+        "ORDER ITEMS:\n";
+
+    cart.forEach(function(item) {
+
+        orderMessage +=
+            `${item.name} x ${item.quantity} = R${(item.price * item.quantity).toFixed(
 displayProducts();
 
 displayCart();
