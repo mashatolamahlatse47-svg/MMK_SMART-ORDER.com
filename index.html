@@ -1,1 +1,102 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MMK SmartOrder</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<header>
+  <h1>MMK SmartOrder</h1>
+
+  <nav>
+    <button onclick="showSection('shop')">Customer Shop</button>
+    <button onclick="showSection('owner')">Owner Dashboard</button>
+  </nav>
+</header>
+
+<!-- CUSTOMER SECTION -->
+<section id="shop" class="section">
+
+  <div class="hero">
+    <h2>Welcome to MMK Grocery Store</h2>
+    <p>Order your groceries online.</p>
+  </div>
+
+  <h2>Products</h2>
+
+  <div id="products" class="products"></div>
+
+  <div class="cart">
+    <h2>🛒 Your Cart</h2>
+
+    <div id="cartItems"></div>
+
+    <h3>Total: R<span id="cartTotal">0.00</span></h3>
+
+    <button onclick="checkout()">Place Order</button>
+  </div>
+
+</section>
+
+
+<!-- OWNER SECTION -->
+<section id="owner" class="section hidden">
+
+  <h2>🔐 Owner Dashboard</h2>
+
+  <div class="dashboard">
+
+    <div class="card">
+      <h3>Products</h3>
+      <strong id="productCount">0</strong>
+    </div>
+
+    <div class="card">
+      <h3>Stock Value</h3>
+      <strong>R<span id="stockValue">0</span></strong>
+    </div>
+
+    <div class="card">
+      <h3>Sales</h3>
+      <strong>R<span id="salesValue">0</span></strong>
+    </div>
+
+    <div class="card">
+      <h3>Profit</h3>
+      <strong>R<span id="profitValue">0</span></strong>
+    </div>
+
+  </div>
+
+
+  <h2>📦 Stock Management</h2>
+
+  <table>
+
+    <thead>
+      <tr>
+        <th>Product</th>
+        <th>Buy Price</th>
+        <th>Sell Price</th>
+        <th>Stock</th>
+        <th>Profit/Item</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody id="stockTable"></tbody>
+
+  </table>
+
+</section>
+
+
+<script src="app.js"></script>
+
+</body>
+</html>
